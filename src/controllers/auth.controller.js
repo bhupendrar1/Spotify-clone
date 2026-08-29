@@ -13,6 +13,7 @@ async function RegisterUser(req, res) {
       ],
   });
 
+
   if (isUserAlreadyExist) {
     return res.status(409).json({ message: "User already exists" });
   }
@@ -49,4 +50,53 @@ async function RegisterUser(req, res) {
   });
 }
 
-module.exports = { RegisterUser };
+async function LoginUser(req, res) {
+
+const { username , email , password } = req.body;
+
+  const user = await userModel.findOne({
+    $or: [
+      { username },
+      { email }
+    ]
+  })
+
+  if(!user) {
+   return res.status(401).json({ 
+    message: "Invalid username or email" });
+
+}
+
+
+
+const isPasswordValid = await bcrypt.compare(password, user.password);
+
+if(!isPasswordValid) {
+  return res.status(401).json({ 
+    message: "Invalid password" });
+}
+
+const token = jwt.sign({
+  id: user._id,
+  role: user.role,
+}, process.env.JWT_SECRET);
+
+res.cookie("token", token);
+
+res.status(200).json({
+  message: "User logged in successfully",
+  user: {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  } 
+});
+
+
+}
+
+
+
+
+module.exports = { RegisterUser, LoginUser };
