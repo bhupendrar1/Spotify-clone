@@ -4,7 +4,7 @@ const multer = require("multer");
 
 
 const uplaod = multer({ 
-    stirage: multer.memoryStorage(),
+    storage: multer.memoryStorage(),
  });
 
 
@@ -14,6 +14,8 @@ const router = express.Router();
 
 
 router.post("/upload", uplaod.single("music"), musicController.createMusic);
+
+router.post("/album", musicController.createAlbum);
 
 
 
