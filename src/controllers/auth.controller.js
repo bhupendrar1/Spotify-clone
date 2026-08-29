@@ -1,51 +1,49 @@
-const userModel = require('../models/user.model');
+const userModel = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
+async function RegisterUser(req, res) {
 
+  const {username, email, password, role = "user"} = req.body;
 
-async function RegisterController(req, res) {
+  const isUserAlreadyExist = await userModel.findOne({
+    $or: [
+      { username: username },
+       { email: email }
+      ],
+  });
 
-    const [username, email, password, role] = req.body;
- 
-    const isUserAlreadyExist = await userModel.findOne({
-        username: username,
-         email: email
-         });
-
-    if(!isUserExist) {
-        console.log("User already exists");
-        return res.status(400).json({ message: "User already exists" });
-    }
-
-    // Create a new user
-  try {
-      const user = await userModel.create({
-         username,
-          email, password,
-           role 
-        });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return res.status(500).json({ message: "Internal server error" });
+  if (!isUserAlreadyExist) {
+    return res.status(409).json({ message: "User already exists" });
   }
 
-// Generate a JWT token for the registered user
-  const token = jwt.sign({ 
-    userId: user._id 
-},
- process.env.JWT_SECRET,
-  { expiresIn: '1h' }
-);
+  // Create a new user
+  const user = await userModel.create({
+    username,
+    email,
+    password,
+    role,
+  });
 
-res.cookie('token', token)
+  // Generate a JWT token for the registered user
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+  );
 
+  res.cookie("token", token);
 
-
-        res.status(201).json({ 
-            message: "User registered successfully",
-             token,
-             user });
-
+  res.status(201).json({
+    message: "User registered successfully",
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    }
+  });
 }
 
-
-module.exports = { RegisterController };
+module.exports = { RegisterUser };

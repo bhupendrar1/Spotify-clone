@@ -6,7 +6,8 @@ const router = express.Router();
 
 
 
-router.post("/register", authcontroller.RegisterController);
+router.post("/register", authcontroller.RegisterUser);
+
 
 
 module.exports = router;
