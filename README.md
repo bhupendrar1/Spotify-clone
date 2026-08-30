@@ -1,4 +1,4 @@
-# 🎵 Spotify Backend
+# 🎵 TuneSphere – Music Streaming Backend
 
 A **RESTful backend API for a Spotify-inspired music streaming application**, built using **Node.js, Express.js, and MongoDB**.
 
