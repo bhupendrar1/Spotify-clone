@@ -3,6 +3,8 @@ const { uploadFile } = require("../services/storage.service");
 const albumModel = require("../models/album.model");
 const jwt = require("jsonwebtoken");
 
+
+
 async function createMusic(req, res) {
   const { title } = req.body;
   const file = req.file;
@@ -49,7 +51,8 @@ async function createAlbum(req, res) {
 
 
 async function getAllMusics(req, res) {
-  const musics = await musicModel.find().populate("artist", "username email");
+  const musics = await musicModel
+  .find().populate("artist", "username email");
 
   res.status(200).json({
     message: "All musics retrieved successfully",
@@ -59,10 +62,34 @@ async function getAllMusics(req, res) {
 
 }
 
+async function getAllAlbums(req, res) {
+  const albums = await albumModel.find().select("title artist").populate("artist", "username email")
+
+  res.status(200).json({
+    message: "All albums retrieved successfully",
+    albums: albums,
+  });
+} 
+
+async function getAlbumById(req, res) {
+  const  albumId  = req.params.albumId;
+
+  const album = await albumModel.findById(albumId).populate("artist", "username email").populate("musics");
+
+  return res.status(200).json({
+    message: "Album retrieved successfully",
+    album: album,
+  });
+
+}
+
+
 
 
 module.exports = {
   createMusic,
   createAlbum,
   getAllMusics,
+  getAllAlbums,
+  getAlbumById,
 };
